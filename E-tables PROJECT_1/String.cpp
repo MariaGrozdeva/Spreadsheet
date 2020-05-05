@@ -4,7 +4,7 @@
 String::String()
 {
 	capacity = 4;
-	str = new char[capacity];
+	str = new char[capacity] {'0'};
 	currentEl = 0;
 }
 
@@ -35,7 +35,6 @@ void String::resize()
 	strcpy(biggerArr, str);
 	free();
 	str = biggerArr;
-
 }
 
 void String::copyFrom(const String& other)
@@ -58,6 +57,16 @@ void String::push_back(char element)
 	str[currentEl] = element;
 	currentEl++;
 	str[currentEl] = '\0';
+}
+
+void String::setStr(const char* str)
+{
+	delete[] this->str;
+	this->str = new char[strlen(str) + 1];
+	strcpy(this->str, str);
+
+	capacity = strlen(str);
+	currentEl = strlen(str);
 }
 
 const char* String::getStr() const

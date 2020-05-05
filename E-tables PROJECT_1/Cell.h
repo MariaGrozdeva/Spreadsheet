@@ -1,10 +1,20 @@
-template <typename T>
+#include "String.h"
+using namespace std;
+
 class Cell
 {
 private:
-	T value;
-	T formula;
+	String value;
+	int row;
+	int col;
 
 public:
-	void edit();
+	Cell();
+	Cell(const char* str, int row, int col);
+
+	void setValue(const char* str);
+
+	const char* getValue() const;
+
+	void print() const;
 };

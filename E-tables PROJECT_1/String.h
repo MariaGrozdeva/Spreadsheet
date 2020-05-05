@@ -19,6 +19,7 @@ public:
 
 	void push_back(char element);
 
+	void setStr(const char* str);
 	const char* getStr() const;
 
 	void print() const;
