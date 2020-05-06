@@ -28,26 +28,26 @@ String::~String()
 	free();
 }
 
-void String::resize()
-{
-	capacity++;
-	char* biggerArr = new char[capacity];
-	strcpy(biggerArr, str);
-	free();
-	str = biggerArr;
-}
-
 void String::copyFrom(const String& other)
 {
 	capacity = other.capacity;
 	currentEl = other.currentEl;
-	str = new char[capacity];
+	str = new char[capacity + 1];
 	strcpy(str, other.str);
 }
 
 void String::free()
 {
 	delete[] str;
+}
+
+void String::resize()
+{
+	capacity *= 2;
+	char* biggerArr = new char[capacity];
+	strcpy(biggerArr, str);
+	free();
+	str = biggerArr;
 }
 
 void String::push_back(char element)

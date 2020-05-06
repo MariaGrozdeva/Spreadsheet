@@ -3,14 +3,14 @@
 Row::Row(int id)
 {
 	capacity = 4;
-	row = new Cell[capacity];
+	cells = new Cell[capacity];
 	this->id = id;
 }
 
 void Row::addCell(String& value, int posOfCell)
 {
 	if (capacity > posOfCell)
-		row[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
 
 	else
 	{
@@ -18,24 +18,31 @@ void Row::addCell(String& value, int posOfCell)
 
 		for (int i = 0; i < capacity; i++)
 		{
-			helper[i] = row[i];
+			helper[i] = cells[i];
 		}
-		delete[] row;
+		delete[] cells;
 
-		row = new Cell[posOfCell + 1];
-		row = helper;
+		cells = new Cell[posOfCell + 1];
+		cells = helper;
 
 		capacity = posOfCell + 1;
 
-		row[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
 	}
+}
+void Row::changeCell(String& value, int posOfCell)
+{
+	if (capacity > posOfCell)
+		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+	else
+		cout << "Nothing to edit, this cell doesn't exist." << endl;
 }
 
 void Row::print() const
 {
-	for (int i = 0; i < capacity; i++)
+	for (int i = 1; i < capacity; i++)
 	{
-		row[i].print();
+		cells[i].print();
 		cout << " ";
 	}
 

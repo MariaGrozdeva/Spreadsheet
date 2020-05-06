@@ -33,7 +33,7 @@ void Table::addRow(int numOfRow)
 
 void Table::addCellinTable(String& value, int row, int col)
 {
-	if (maxRow < row)
+	if (maxRow <= row)
 	{
 		addRow(row);
 		rows[row].addCell(value, col);
@@ -44,9 +44,19 @@ void Table::addCellinTable(String& value, int row, int col)
 		rows[row].addCell(value, col);
 }
 
+void Table::edit(String& value, int row, int col)
+{
+	if (maxRow <= row)
+	{
+		cout << "Nothing to edit, this row doesn't exist." << endl;
+	}
+	else
+		rows[row].changeCell(value, col);
+}
+
 void Table::print() const
 {
-	for (int i = 0; i < maxRow; i++)
+	for (int i = 1; i < maxRow; i++)
 	{
 		rows[i].print();
 	}

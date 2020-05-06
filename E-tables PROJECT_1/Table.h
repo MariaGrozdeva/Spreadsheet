@@ -11,8 +11,8 @@ public:
 	Table();
 
 	void addRow(int numOfRow);
-
 	void addCellinTable(String& value, int row, int col);
+	void edit(String& value, int row, int col);
 
 	void print() const;
 };

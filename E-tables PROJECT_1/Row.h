@@ -3,7 +3,7 @@
 class Row
 {
 private:
-    Cell* row;
+    Cell* cells;
     int capacity;
     int id;
 
@@ -11,6 +11,7 @@ public:
     Row(int id = 0);
 
     void addCell(String& value, int posOfCell);
+    void changeCell(String& value, int posOfCell);
 
     void print() const;
 };
