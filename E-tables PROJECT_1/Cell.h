@@ -15,7 +15,11 @@ public:
 	void setValue(const char* str);
 	void setPos(int row, int col);
 
-	const char* getValue() const;
+	const char* getValueStr() const;
+	const String getValue() const;
+
+	int checkValueType(const String& value);
+	bool checkIfStringIsValidNumber(const String& value);
 
 	void print() const;
 };
