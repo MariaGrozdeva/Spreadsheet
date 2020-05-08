@@ -18,4 +18,7 @@ int main()
 	tableTest.edit(testingStr2, 3, 4);
 
 	tableTest.print();
+
+	//CommandLine command;
+	//command.open();
 }
