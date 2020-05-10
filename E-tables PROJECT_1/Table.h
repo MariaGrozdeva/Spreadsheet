@@ -11,8 +11,10 @@ public:
 	Table();
 
 	void addRow(int numOfRow);
-	void addCellinTable(String& value, int row, int col);
-	void edit(String& value, int row, int col);
+
+	void edit(const String& value, int row, int col);
+
+	double calculateFormulaCellsReference(int row, int col) const;
 
 	void print() const;
 };

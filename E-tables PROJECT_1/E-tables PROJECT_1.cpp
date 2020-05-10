@@ -2,24 +2,19 @@
 
 int main()
 {
-	//Table tableTest;
+	Table tableTest;
 
-	//String testingStr;
-	//testingStr.setStr("KLETKA");
-	//String testingStr1;
-	//testingStr1.setStr("RED");
-	//String testingStr2;
-	//testingStr2.setStr("TABLICA");
-	//
-	//tableTest.addCellinTable(testingStr, 2, 3);
-	//tableTest.addCellinTable(testingStr1, 3, 4);
-	//tableTest.addCellinTable(testingStr2, 4, 5);
-	//tableTest.addCellinTable(testingStr, 5, 6);
-	//tableTest.edit(testingStr2, 3, 4);
+	Cell cell1;
+	cell1.setValue("= R1C2 + R2C3");
+	Cell cell2;
+	cell2.setValue("\"10.5\"");
+	Cell cell3;
+	cell3.setValue("\"5\"");
 
-	//tableTest.print();
+	tableTest.edit(cell1.getValue(), 1, 1);
+	tableTest.edit(cell2.getValue(), 1, 2);
+	tableTest.edit(cell3.getValue(), 2, 3);
+	//tableTest.edit(cell3.getValue(), 1, 1);
 
-	Cell cell;
-	cell.setValue("\"-12.34\"");
-	cell.checkIfStringIsValidNumber(cell.getValue());
+	tableTest.print();
 }

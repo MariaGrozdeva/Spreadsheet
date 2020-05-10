@@ -20,6 +20,7 @@ public:
 
 	int checkValueType(const String& value);
 	bool checkIfStringIsValidNumber(const String& value);
+	double convertStrToNum();
 
 	void print() const;
 };

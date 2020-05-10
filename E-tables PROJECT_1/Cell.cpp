@@ -33,26 +33,24 @@ const String Cell::getValue() const
 	return value;
 }
 
-// -1(invalid), 0(string), 1(number)
+
+// -1(invalid), 0(string), 1(number), 2(formula)
 int Cell::checkValueType(const String& value)
 {
 	int len = strlen(value.getStr());
 
 	if ((value.getStr()[0] == '"') && (value.getStr()[len - 1] == '"'))
-	{
-		//cout << "The value type is valid. It is string." << endl;
 		return 0;
-	}
+
+	if (value.getStr()[0] == '=')
+		return 2;
 
 	if ((value.getStr()[0] == '+') || (value.getStr()[0] == '-'))
 	{
 		for (int i = 1; i < len; i++)
 		{
 			if ((value.getStr()[i] != '.') && ((value.getStr()[i] < '0') || (value.getStr()[i] > '9')))
-			{
-				//cout << "The value type is invalid." << endl;
 				return -1;
-			}
 		}
 	}
 	else if ((value.getStr()[0] != '+') && (value.getStr()[0] != '-'))
@@ -60,10 +58,7 @@ int Cell::checkValueType(const String& value)
 		for (int i = 0; i < len; i++)
 		{
 			if ((value.getStr()[i] != '.') && ((value.getStr()[i] < '0') || (value.getStr()[i] > '9')))
-			{
-				//cout << "The value type is invalid." << endl;
 				return -1;
-			}
 		}
 	}
 
@@ -75,12 +70,8 @@ int Cell::checkValueType(const String& value)
 	}
 
 	if ((countOfDots > 1) || (value.getStr()[0] == '.') || (value.getStr()[len - 1] == '.'))
-	{
-		//cout << "The value type is invalid. The dots can't be more than one." << endl;
 		return -1;
-	}
 
-	//cout << "The value type is valid." << endl;
 	return 1;
 }
 
@@ -130,8 +121,65 @@ bool Cell::checkIfStringIsValidNumber(const String& value)
 		return false;
 	}
 
-	cout << "Valid number." << endl;
 	return true;
+}
+
+double Cell::convertStrToNum()
+{
+	double number = 0;
+	double digit = 0;
+
+	if (!checkIfStringIsValidNumber(value))
+		return 0;
+
+	int len = strlen(value.getStr());
+	int isFract = 0;
+
+	for (int i = 1; i < len - 1; i++)
+	{
+		if (value.getStr()[i] == '.')
+		{
+			isFract = i;
+			break;
+		}
+	}
+
+	bool hasSign = false;
+	bool isPlus = true;
+	if (value.getStr()[1] == '+')
+	{
+		hasSign = true;
+		isPlus = true;
+	}
+	else if (value.getStr()[1] == '-')
+	{
+		hasSign = true;
+		isPlus = false;
+	}
+
+	if (!isFract)
+	{
+		for (int i = 1 + hasSign; i < len - 1; i++)
+		{
+			digit = value.getStr()[i] - '0';
+			number = number * 10 + digit;
+		}
+	}
+	else
+	{
+		for (int i = 1 + hasSign; i < isFract; i++)
+		{
+			digit = value.getStr()[i] - '0';
+			number = number * 10 + digit;
+		}
+		for (int i = isFract + 1, j = 1; i < len - 1; i++, j++)
+		{
+			digit = value.getStr()[i] - '0';
+			number = number + (digit / (pow(10, j)));
+		}
+	}
+
+	return isPlus ? number : -number;
 }
 
 void Cell::print() const

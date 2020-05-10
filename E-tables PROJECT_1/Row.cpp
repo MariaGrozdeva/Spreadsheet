@@ -7,10 +7,47 @@ Row::Row(int id)
 	this->id = id;
 }
 
-void Row::addCell(String& value, int posOfCell)
+Cell* Row::getCells() const
+{
+	return cells;
+}
+
+const int Row::getCapacity() const
+{
+	return capacity;
+}
+const char* Row::getCellStr(int index) const
+{
+	return cells[index].getValueStr();
+}
+const double Row::getCellValue(int index) const
+{
+	return cells[index].convertStrToNum();
+}
+
+bool Row::isFormula(int index) const
+{
+	if (cells[index].checkValueType(cells[index].getValue()) == 2)
+	{
+		return true;
+	}
+	return false;
+}
+
+void Row::addOrEditCell(const String& value, int posOfCell)
 {
 	if (capacity > posOfCell)
+	{
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		if (cells[posOfCell].checkValueType(value) == -1)
+		{
+			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
+			cells[posOfCell].getValue().print();
+			cout << " is unknown data type." << endl;
+
+			return;
+		}
+	}
 
 	else
 	{
@@ -28,23 +65,27 @@ void Row::addCell(String& value, int posOfCell)
 		capacity = posOfCell + 1;
 
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		if (cells[posOfCell].checkValueType(value) == -1)
+		{
+			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
+			cells[posOfCell].getValue().print();
+			cout << " is unknown data type." << endl;
+
+			return;
+		}
 	}
 }
-void Row::changeCell(String& value, int posOfCell)
-{
-	if (capacity > posOfCell)
-		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
-	else
-		cout << "Nothing to edit, this cell doesn't exist." << endl;
-}
 
+void Row::printCell(int index) const
+{
+	cells[index].print();
+	cout << " ";
+}
 void Row::print() const
 {
 	for (int i = 1; i < capacity; i++)
 	{
-		cells[i].print();
-		cout << " ";
+		printCell(i);
 	}
-
 	cout << endl;
 }
