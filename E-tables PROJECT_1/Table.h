@@ -15,6 +15,7 @@ public:
 	void edit(const String& value, int row, int col);
 
 	double calculateFormulaCellsReference(int row, int col) const;
+	void calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator) const;
 
 	void print() const;
 };

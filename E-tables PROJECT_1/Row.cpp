@@ -16,6 +16,7 @@ const int Row::getCapacity() const
 {
 	return capacity;
 }
+
 const char* Row::getCellStr(int index) const
 {
 	return cells[index].getValueStr();
@@ -23,6 +24,10 @@ const char* Row::getCellStr(int index) const
 const double Row::getCellValue(int index) const
 {
 	return cells[index].convertStrToNum();
+}
+const String Row::getOriginalValue(int index) const
+{
+	return cells[index].getValue();
 }
 
 bool Row::isFormula(int index) const

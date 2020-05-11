@@ -15,6 +15,7 @@ public:
     const int getCapacity() const;
     const char* getCellStr(int index) const;
     const double getCellValue(int index) const;
+    const String getOriginalValue(int index) const;
 
     bool isFormula(int index) const;
 
