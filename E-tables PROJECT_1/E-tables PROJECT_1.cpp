@@ -5,11 +5,11 @@ int main()
 	Table tableTest;
 
 	Cell cell1;
-	cell1.setValue("= 20 + 1");
+	cell1.setValue("= R1C2 ^ 2");
 	Cell cell2;
 	cell2.setValue("\"10.5\"");
 	Cell cell3;
-	cell3.setValue("\"5\"");
+	cell3.setValue("\"1\"");
 	Cell cell4;
 	cell4.setValue("= R1C2 + R2C3");
 
