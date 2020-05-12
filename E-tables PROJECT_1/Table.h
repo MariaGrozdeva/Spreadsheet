@@ -20,8 +20,13 @@ public:
 	void setRhsValue(const char*& cellStr, int& lastDigPosBefCol,
 		int& lastDigPosBefOp, int& lhsRow, int& lhsCol, int& digit, int& len);
 
-	void checkIfRhsIsNum(const char*& cellStr, int& lastDigPosBefCol,
-		int& lastDigPosBefOp, double& rhsCell, int& digit, int& len, bool& isSecNum);
+	void checkIfRhsValueIsFormula(const char*& cellStr, int& lastDigPosBefOp, int& len, bool& isRhsFormula);
+
+	void setLhsValueAsNum(const char*& cellStr, double& lhsCell,
+		int& digit, char& Operator);
+
+	void setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
+		double& rhsCell, int& digit, int& len, bool& isRhsNum);
 
 	double arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell);
 

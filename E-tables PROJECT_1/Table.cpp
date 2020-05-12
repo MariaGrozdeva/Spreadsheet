@@ -83,10 +83,53 @@ void Table::setRhsValue(const char*& cellStr, int& lastDigPosBefCol,
 	}
 }
 
-void Table::checkIfRhsIsNum(const char*& cellStr, int& lastDigPosBefCol,
-	int& lastDigPosBefOp, double& rhsCell, int& digit, int& len, bool& isSecNum)
+void Table::checkIfRhsValueIsFormula(const char*& cellStr, int& lastDigPosBefOp, int& len, bool& isRhsFormula)
 {
-	isSecNum = true;
+	for (int i = 0; i < len; i++)
+	{
+		if (cellStr[i] == 'R')
+		{
+			isRhsFormula = true;
+			lastDigPosBefOp = i - 4;
+			break;
+		}
+	}
+}
+
+void Table::setLhsValueAsNum(const char*& cellStr, double& lhsCell,
+	int& digit, char& Operator)
+{
+	int posOfDot = 0;
+	bool dot = false;
+	for (int i = 2; (cellStr[i] >= '0' && cellStr[i] <= '9') || (cellStr[i] == '.'); i++)
+	{
+		if (cellStr[i] == '.')
+		{
+			dot = true;
+			posOfDot = i;
+			break;
+		}
+		digit = cellStr[i] - '0';
+		lhsCell = lhsCell * 10 + digit;
+
+		Operator = cellStr[i + 2];
+	}
+	if (dot)
+	{
+		for (int i = posOfDot + 1, j = 1; cellStr[i] != ' '; i++, j++)
+		{
+			digit = cellStr[i] - '0';
+			lhsCell = lhsCell + (digit / (pow(10, j)));
+
+			Operator = cellStr[i + 2];
+		}
+	}
+}
+
+void Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
+	double& rhsCell, int& digit, int& len, bool& isRhsNum)
+{
+	isRhsNum = true;
 
 	int posOfDot = 0;
 	bool dot = false;
@@ -136,40 +179,50 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 	int rhsRow = 0;
 	int rhsCol = 0;
 
+	int lastDigPosBefCol = 0;
+	int lastDigPosBefOp = 0;
+
 	double lhsCell = 0;
 	double rhsCell = 0;
 
+	bool isRhsNum = false;
+	bool isRhsFormula = false;
+
 	char Operator;
-	bool isSecNum = false;
 
-	if (cell[2] >= '0' && cell[2] <= '9')
-		calculateStandartFormula(row, col, lhsCell, rhsCell, Operator);
-
-	else
+	if (cell[2] >= '0' && cell[2] <= '9') // check if FIRST IS NUMBER
 	{
-		int lastDigPosBefCol = 3;
-		int lastDigPosBefOp = 5;
-
-		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
-
-		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9')
-			checkIfRhsIsNum(cell, lastDigPosBefCol, lastDigPosBefOp, rhsCell, digit, len, isSecNum);
-
-		if (!isSecNum)
+		checkIfRhsValueIsFormula(cell, lastDigPosBefOp, len, isRhsFormula); // check if SECOND IS FORMULA
+		if (isRhsFormula) 
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
+			rhsCell = rows[rhsRow].getCellValue(rhsCol); // set SECOND AS FORMULA
+		}
+		setLhsValueAsNum(cell, lhsCell, digit, Operator); // set FIRST AS NUMBER
+	}
 
-			lhsCell = rows[lhsRow].getCellValue(lhsCol);
-			rhsCell = rows[rhsRow].getCellValue(rhsCol);
+	else if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
+		calculateStandartFormula(row, col, lhsCell, rhsCell, Operator); // set BOTH AS NUMBERS
 
-			if (!rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()))
-				lhsCell = 0;
+	else // FIRST IS FORMULA
+	{
+		lastDigPosBefCol += 3;
+		lastDigPosBefOp += 5;
+
+		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
+		lhsCell = rows[lhsRow].getCellValue(lhsCol); // set FIRST AS FORMULA
+
+		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
+			setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum); // set SECOND AS NUMBER
+
+		if (!isRhsNum) // SECOND IS FORMULA
+		{
+			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
+			rhsCell = rows[rhsRow].getCellValue(rhsCol); // set SECOND AS FORMULA
 
 			if (!rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()))
 				rhsCell = 0;
 		}
-
-		lhsCell = rows[lhsRow].getCellValue(lhsCol);
 
 		if (!rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()))
 			lhsCell = 0;
