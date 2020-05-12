@@ -36,6 +36,7 @@ void Table::edit(const String& value, int row, int col)
 		rows[row].addOrEditCell(value, col);
 
 		maxRow = row + 1;
+		maxCol = rows[row].getCapacity();
 	}
 	else
 		rows[row].addOrEditCell(value, col);
@@ -154,6 +155,17 @@ void Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 	}
 }
 
+void Table::settingFinalValue(int& row, int& col, double& cell, bool& rowOrColExist)
+{
+	if (row > maxRow - 1 || col > maxCol - 1)
+	{
+		rowOrColExist = false;
+		cell = 0;
+	}
+	else
+		cell = rows[row].getCellValue(col); // set SECOND AS FORMULA
+}
+
 double Table::arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell)
 {
 	if (Operator == '+')
@@ -187,6 +199,7 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 
 	bool isRhsNum = false;
 	bool isRhsFormula = false;
+	bool rowOrColExist = true;
 
 	char Operator;
 
@@ -196,7 +209,7 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		if (isRhsFormula) 
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			rhsCell = rows[rhsRow].getCellValue(rhsCol); // set SECOND AS FORMULA
+			settingFinalValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
 		}
 		setLhsValueAsNum(cell, lhsCell, digit, Operator); // set FIRST AS NUMBER
 	}
@@ -210,7 +223,7 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		lastDigPosBefOp += 5;
 
 		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
-		lhsCell = rows[lhsRow].getCellValue(lhsCol); // set FIRST AS FORMULA
+		settingFinalValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
 
 		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
 			setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum); // set SECOND AS NUMBER
@@ -218,14 +231,20 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		if (!isRhsNum) // SECOND IS FORMULA
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			rhsCell = rows[rhsRow].getCellValue(rhsCol); // set SECOND AS FORMULA
+			settingFinalValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
 
-			if (!rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()))
-				rhsCell = 0;
+			if (rowOrColExist)
+			{
+				if (!rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()))
+					rhsCell = 0;
+			}
 		}
 
-		if (!rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()))
-			lhsCell = 0;
+		if (rowOrColExist)
+		{
+			if (!rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()))
+				lhsCell = 0;
+		}
 	}
 
 	return arithmeticOperations(Operator, lhsCell, rhsCell);
@@ -310,6 +329,7 @@ void Table::print()
 			else
 				rows[i].printCell(j);
 		}
+
 		cout << endl;
 	}
 }
