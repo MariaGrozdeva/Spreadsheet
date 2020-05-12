@@ -28,11 +28,11 @@ public:
 	void setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 		double& rhsCell, int& digit, int& len, bool& isRhsNum);
 
-	void settingFinalValue(int& row, int& col, double& cell, bool& rowOrColExist);
+	void settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrColExist);
 
 	double arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell);
 
-	double calculateFormulaCellsReference(int row, int col);
+	bool calculateFormulaCellsReference(int row, int col, double& res);
 
 	void calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator);
 

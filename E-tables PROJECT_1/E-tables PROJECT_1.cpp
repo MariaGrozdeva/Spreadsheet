@@ -5,7 +5,7 @@ int main()
 	Table tableTest;
 
 	Cell cell1;
-	cell1.setValue("= R3C3 + 2");
+	cell1.setValue("= 5 / 5");
 	Cell cell2;
 	cell2.setValue("\"5.5\"");
 	Cell cell3;

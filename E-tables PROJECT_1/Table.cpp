@@ -155,7 +155,7 @@ void Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 	}
 }
 
-void Table::settingFinalValue(int& row, int& col, double& cell, bool& rowOrColExist)
+void Table::settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrColExist)
 {
 	if (row > maxRow - 1 || col > maxCol - 1)
 	{
@@ -180,7 +180,7 @@ double Table::arithmeticOperations(char& Operator, double& lhsCell, double& rhsC
 		return pow(lhsCell, rhsCell);
 }
 
-double Table::calculateFormulaCellsReference(int row, int col) // assume that the given formula is valid
+bool Table::calculateFormulaCellsReference(int row, int col, double& res) // assume that the given formula is valid
 {
 	int len = strlen(rows[row].getCellStr(col));
 	const char* cell = rows[row].getCellStr(col);
@@ -209,12 +209,12 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		if (isRhsFormula) 
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			settingFinalValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
+			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
 		}
 		setLhsValueAsNum(cell, lhsCell, digit, Operator); // set FIRST AS NUMBER
 	}
 
-	else if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
+	if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
 		calculateStandartFormula(row, col, lhsCell, rhsCell, Operator); // set BOTH AS NUMBERS
 
 	else // FIRST IS FORMULA
@@ -223,7 +223,7 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		lastDigPosBefOp += 5;
 
 		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
-		settingFinalValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
+		settingFinalCellValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
 
 		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
 			setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum); // set SECOND AS NUMBER
@@ -231,7 +231,7 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		if (!isRhsNum) // SECOND IS FORMULA
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			settingFinalValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
+			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
 
 			if (rowOrColExist)
 			{
@@ -247,7 +247,12 @@ double Table::calculateFormulaCellsReference(int row, int col) // assume that th
 		}
 	}
 
-	return arithmeticOperations(Operator, lhsCell, rhsCell);
+	res = arithmeticOperations(Operator, lhsCell, rhsCell);
+
+	if (Operator == '/' && rhsCell == 0)
+		return false;
+
+	return true;
 }
 
 void Table::calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator)
@@ -324,8 +329,18 @@ void Table::print()
 	{
 		for (int j = 1; j < rows[i].getCapacity(); j++)
 		{
+			double res = 0;
+
 			if (rows[i].isFormula(j))
-				cout << calculateFormulaCellsReference(i, j) << " ";
+			{
+				if (!calculateFormulaCellsReference(i, j, res))
+				{
+					cout << "ERROR" << " ";
+					continue;
+				}
+				calculateFormulaCellsReference(i, j, res);
+				cout << res << " ";
+			}
 			else
 				rows[i].printCell(j);
 		}
