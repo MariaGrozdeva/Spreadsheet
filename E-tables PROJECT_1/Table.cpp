@@ -97,9 +97,21 @@ void Table::checkIfRhsValueIsFormula(const char*& cellStr, int& lastDigPosBefOp,
 	}
 }
 
-void Table::setLhsValueAsNum(const char*& cellStr, double& lhsCell,
+bool Table::setLhsValueAsNum(const char*& cellStr, double& lhsCell,
 	int& digit, char& Operator)
 {
+	bool isValid = true;
+	int countOfDots = 0;
+	for (int i = 2; (cellStr[i] >= '0' && cellStr[i] <= '9') || (cellStr[i] == '.'); i++)
+	{
+		if (cellStr[i] == '.')
+			countOfDots++;
+	}
+	if (countOfDots >= 2 || cellStr[2] == '.')
+	{
+		cout << "Invalid number. The dots can't be more than one or a number can't start with a dot." << endl;
+	}
+
 	int posOfDot = 0;
 	bool dot = false;
 	for (int i = 2; (cellStr[i] >= '0' && cellStr[i] <= '9') || (cellStr[i] == '.'); i++)
@@ -112,7 +124,6 @@ void Table::setLhsValueAsNum(const char*& cellStr, double& lhsCell,
 		}
 		digit = cellStr[i] - '0';
 		lhsCell = lhsCell * 10 + digit;
-
 		Operator = cellStr[i + 2];
 	}
 	if (dot)
@@ -125,13 +136,26 @@ void Table::setLhsValueAsNum(const char*& cellStr, double& lhsCell,
 			Operator = cellStr[i + 2];
 		}
 	}
+	return isValid ? true : false;
 }
 
-void Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
+bool Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 	double& rhsCell, int& digit, int& len, bool& isRhsNum)
 {
-	isRhsNum = true;
+	bool isValid = true;
+	int countOfDots = 0;
+	for (int i = lastDigPosBefOp + 4; (cellStr[i] >= '0' && cellStr[i] <= '9') || (cellStr[i] == '.'); i++)
+	{
+		if (cellStr[i] == '.')
+			countOfDots++;
+	}
+	if (countOfDots >= 2 || cellStr[lastDigPosBefOp + 4] == '.')
+	{
+		isValid = false;
+		cout << "Invalid number. The dots can't be more than one or a number can't start with a dot." << endl;
+	}
 
+	isRhsNum = true;
 	int posOfDot = 0;
 	bool dot = false;
 	for (int i = lastDigPosBefOp + 4; (cellStr[i] >= '0' && cellStr[i] <= '9') || (cellStr[i] == '.'); i++)
@@ -153,6 +177,7 @@ void Table::setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 			rhsCell = rhsCell + (digit / (pow(10, j)));
 		}
 	}
+	return isValid ? true : false;
 }
 
 void Table::settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrColExist)
@@ -178,6 +203,99 @@ double Table::arithmeticOperations(char& Operator, double& lhsCell, double& rhsC
 		return lhsCell / rhsCell;
 	else if (Operator == '^')
 		return pow(lhsCell, rhsCell);
+}
+
+bool Table::calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator)
+// assume that the given formula is valid
+{
+	int digit = 0;
+	lhsNum = 0;
+	rhsNum = 0;
+
+	int len = strlen(rows[row].getCellStr(col));
+	const char* cell = rows[row].getCellStr(col);
+
+	int posOfOp = 0;
+	int posOfDot = 0;
+	bool dot = false;
+
+	bool isValid = true;
+	int countOfDots = 0;
+	for (int i = 2; (cell[i] >= '0' && cell[i] <= '9') || (cell[i] == '.'); i++)
+	{
+		if (cell[i] == '.')
+			countOfDots++;
+	}
+	if (countOfDots >= 2 || cell[2] == '.')
+	{
+		cout << "Invalid number. The dots can't be more than one or a number can't start with a dot." << endl;
+		isValid = false;
+	}
+	countOfDots = 0;
+
+	for (int i = 2; (cell[i] >= '0' && cell[i] <= '9') || (cell[i] == '.'); i++)
+	{
+		if (cell[i] == '.')
+		{
+			dot = true;
+			posOfDot = i;
+			break;
+		}
+
+		digit = cell[i] - '0';
+		lhsNum = lhsNum * 10 + digit;
+		posOfOp = i + 2;
+	}
+	if (dot)
+	{
+		for (int i = posOfDot + 1, j = 1; cell[i] >= '0' && cell[i] <= '9'; i++, j++)
+		{
+			digit = cell[i] - '0';
+			lhsNum = lhsNum + (digit / (pow(10, j)));
+
+			posOfOp = i + 2;
+		}
+	}
+
+	digit = 0;
+	posOfDot = 0;
+	dot = false;
+
+	for (int i = posOfOp + 2; i < len || (cell[i] == '.'); i++)
+	{
+		if (cell[i] == '.')
+			countOfDots++;
+	}
+	if (countOfDots >= 2 || cell[posOfOp + 2] == '.')
+	{
+		cout << "Invalid number. The dots can't be more than one or a number can't start with a dot." << endl;
+		isValid = false;
+	}
+
+	for (int i = posOfOp + 2; i < len || (cell[i] == '.'); i++)
+	{
+		if (cell[i] == '.')
+		{
+			dot = true;
+			posOfDot = i;
+			break;
+		}
+
+		digit = cell[i] - '0';
+		rhsNum = rhsNum * 10 + digit;
+	}
+	Operator = cell[posOfOp];
+	if (dot)
+	{
+		for (int i = posOfDot + 1, j = 1; i < len; i++, j++)
+		{
+			digit = cell[i] - '0';
+			rhsNum = rhsNum + (digit / (pow(10, j)));
+
+			posOfOp = i + 2;
+		}
+	}
+	return isValid ? true : false;
 }
 
 bool Table::calculateFormulaCellsReference(int row, int col, double& res) // assume that the given formula is valid
@@ -211,13 +329,17 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
 			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
 		}
-		setLhsValueAsNum(cell, lhsCell, digit, Operator); // set FIRST AS NUMBER
+		if (!setLhsValueAsNum(cell, lhsCell, digit, Operator)) // set FIRST AS NUMBER
+			return false; 
 	}
 
 	if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
-		calculateStandartFormula(row, col, lhsCell, rhsCell, Operator); // set BOTH AS NUMBERS
+	{
+		if (!calculateStandartFormula(row, col, lhsCell, rhsCell, Operator)) // set BOTH AS NUMBERS
+			return false;
+	}
 
-	else // FIRST IS FORMULA
+	else if (cell[2] == 'R') // FIRST IS FORMULA
 	{
 		lastDigPosBefCol += 3;
 		lastDigPosBefOp += 5;
@@ -226,7 +348,10 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 		settingFinalCellValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
 
 		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
-			setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum); // set SECOND AS NUMBER
+		{
+			if (!setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum)) // set SECOND AS NUMBER
+				return false;
+		}
 
 		if (!isRhsNum) // SECOND IS FORMULA
 		{
@@ -246,81 +371,13 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 				lhsCell = 0;
 		}
 	}
-
-	res = arithmeticOperations(Operator, lhsCell, rhsCell);
-
-	if (Operator == '/' && rhsCell == 0)
+	else // INVALID NUMBER
 		return false;
 
+	res = arithmeticOperations(Operator, lhsCell, rhsCell);
+	if (Operator == '/' && rhsCell == 0)
+		return false;
 	return true;
-}
-
-void Table::calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator)
-// assume that the given formula is valid
-{
-	int digit = 0;
-	lhsNum = 0;
-	rhsNum = 0;
-
-	int len = strlen(rows[row].getCellStr(col));
-	const char* cell = rows[row].getCellStr(col);
-
-	int posOfOp = 0;
-	int posOfDot = 0;
-	bool dot = false;
-
-	for (int i = 2; (cell[i] >= '0' && cell[i] <= '9') || (cell[i] == '.'); i++)
-	{
-		if (cell[i] == '.')
-		{
-			dot = true;
-			posOfDot = i;
-			break;
-		}
-
-		digit = cell[i] - '0';
-		lhsNum = lhsNum * 10 + digit;
-
-		posOfOp = i + 2;
-	}
-	if (dot)
-	{
-		for (int i = posOfDot + 1, j = 1; cell[i] >= '0' && cell[i] <= '9'; i++, j++)
-		{
-			digit = cell[i] - '0';
-			lhsNum = lhsNum + (digit / (pow(10, j)));
-
-			posOfOp = i + 2;
-		}
-	}
-
-	digit = 0;
-	posOfDot = 0;
-	dot = false;
-
-	for (int i = posOfOp + 2; i < len || (cell[i] == '.'); i++)
-	{
-		if (cell[i] == '.')
-		{
-			dot = true;
-			posOfDot = i;
-			break;
-		}
-
-		digit = cell[i] - '0';
-		rhsNum = rhsNum * 10 + digit; 
-	}
-	Operator = cell[posOfOp];
-	if (dot)
-	{
-		for (int i = posOfDot + 1, j = 1; i < len; i++, j++)
-		{
-			digit = cell[i] - '0';
-			rhsNum = rhsNum + (digit / (pow(10, j)));
-
-			posOfOp = i + 2;
-		}
-	}
 }
 
 void Table::print()
@@ -344,7 +401,6 @@ void Table::print()
 			else
 				rows[i].printCell(j);
 		}
-
 		cout << endl;
 	}
 }

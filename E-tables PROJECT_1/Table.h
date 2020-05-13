@@ -22,19 +22,19 @@ public:
 
 	void checkIfRhsValueIsFormula(const char*& cellStr, int& lastDigPosBefOp, int& len, bool& isRhsFormula);
 
-	void setLhsValueAsNum(const char*& cellStr, double& lhsCell,
+	bool setLhsValueAsNum(const char*& cellStr, double& lhsCell,
 		int& digit, char& Operator);
 
-	void setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
+	bool setRhsValueAsNum(const char*& cellStr, int& lastDigPosBefOp,
 		double& rhsCell, int& digit, int& len, bool& isRhsNum);
 
 	void settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrColExist);
 
 	double arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell);
 
-	bool calculateFormulaCellsReference(int row, int col, double& res);
+	bool calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator);
 
-	void calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator);
+	bool calculateFormulaCellsReference(int row, int col, double& res);
 
 	void print();
 };

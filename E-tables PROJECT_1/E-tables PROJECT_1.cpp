@@ -5,13 +5,13 @@ int main()
 	Table tableTest;
 
 	Cell cell1;
-	cell1.setValue("= 5 / 5");
+	cell1.setValue("= R2C3 / R2C3");
 	Cell cell2;
-	cell2.setValue("\"5.5\"");
+	cell2.setValue("\"5.5.\"");
 	Cell cell3;
-	cell3.setValue("\"1\"");
+	cell3.setValue("\"3\"");
 	//Cell cell4;
-	//cell4.setValue("= R1C2 + R2C3");
+	//cell4.setValue("= R2C3 / R1C2");
 
 	tableTest.edit(cell1.getValue(), 1, 1);
 	tableTest.edit(cell2.getValue(), 1, 2);
