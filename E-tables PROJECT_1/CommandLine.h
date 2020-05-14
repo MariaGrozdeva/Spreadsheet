@@ -1,5 +1,5 @@
 ﻿#include <fstream>
-#include "String.h"
+#include "Table.h"
 
 using namespace std;
 
@@ -8,6 +8,10 @@ class CommandLine
 {
 private:
 	String fileName;
+	String value;
+	Cell cell;
+	Table table;
+
 	char command[MAX_SIZE_OF_COMMAND];
 	char letter;
 
@@ -29,7 +33,4 @@ public:
 	void help() const;
 
 	void open();
-
-	//void print();
-	//void edit();
 };

@@ -161,9 +161,37 @@ void CommandLine::open()
 					help();
 				}
 
-				//else if (strcmp(command, "edit") == 0);
+				else if (strcmp(command, "edit") == 0)
+				{
+					String tempValue;
 
-				//else if (strcmp(command, "print") == 0);
+					int row;
+					cin >> row;
+					cin.ignore();
+
+					int col;
+					cin >> col;
+					cin.ignore();
+
+					while (true)
+					{
+						cin.get(letter);
+
+						if (letter == '\n')
+							break;
+
+						tempValue.push_back(letter);
+						value.setStr(tempValue.getStr());
+					}
+
+					cell.setValue(value.getStr());
+					table.edit(cell.getValue(), row, col);
+				}
+
+				else if (strcmp(command, "print") == 0)
+				{
+					table.print();
+				}
 			}
 		}
 	}

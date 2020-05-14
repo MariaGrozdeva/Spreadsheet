@@ -26,6 +26,14 @@ void Table::addRow(int numOfRow)
 
 		rows[numOfRow] = *new Row(numOfRow);
 	}
+
+	for (int i = 0; i < maxRow; i++)
+	{
+		for (int j = rows[i].getCapacity(); j < maxCol; j++)
+		{
+			rows[i].addOrEditCell(Cell().getValue(), j);
+		}
+	}
 }
 
 void Table::edit(const String& value, int row, int col)
@@ -104,9 +112,7 @@ bool Table::setLhsValueAsNum(const char*& cell, double& lhsCell, int& digit, cha
 			countOfDots++;
 	}
 	if (countOfDots >= 2 || cell[2] == '.')
-	{
 		cout << "Invalid number. The dots can't be more than one or a number can't start with a dot." << endl;
-	}
 
 	int posOfDot = 0;
 	bool dot = false;
@@ -182,7 +188,12 @@ void Table::settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrC
 		cell = 0;
 	}
 	else
-		cell = rows[row].getCellValue(col); // set SECOND AS FORMULA
+	{
+		if (rows[row].isFormula(col))
+			calculateFormulaCellsReference(row, col, cell);
+		else 
+			cell = rows[row].getCellValue(col); // set SECOND AS FORMULA
+	}
 }
 
 double Table::arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell)
@@ -321,15 +332,15 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
 			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
+			if (!setLhsValueAsNum(cell, lhsCell, digit, Operator)) // set FIRST AS NUMBER
+				return false;
 		}
-		if (!setLhsValueAsNum(cell, lhsCell, digit, Operator)) // set FIRST AS NUMBER
-			return false; 
-	}
 
-	if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
-	{
-		if (!calculateStandartFormula(row, col, lhsCell, rhsCell, Operator)) // set BOTH AS NUMBERS
-			return false;
+		else if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
+		{
+			if (!calculateStandartFormula(row, col, lhsCell, rhsCell, Operator)) // set BOTH AS NUMBERS
+				return false;
+		}		
 	}
 
 	else if (cell[2] == 'R') // FIRST IS FORMULA
@@ -339,9 +350,14 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 
 		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
 		settingFinalCellValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
+		if (rowOrColExist)
+		{
+			if (rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()) == -1)
+				lhsCell = 0;
+		}
 
 		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
-		{
+		{		
 			if (!setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum)) // set SECOND AS NUMBER
 				return false;
 		}
@@ -350,19 +366,12 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
 			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
-
 			if (rowOrColExist)
 			{
-				if (!rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()))
+				if (rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()) == -1)
 					rhsCell = 0;
 			}
-		}
-
-		if (rowOrColExist)
-		{
-			if (!rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()))
-				lhsCell = 0;
-		}
+		}		
 	}
 	else // INVALID NUMBER
 		return false;
@@ -374,11 +383,21 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 	return true;
 }
 
+void Table::fillTheEmptyCells()
+{
+	for (int i = 0; i < maxRow; i++)
+	{
+		for (int j = rows[i].getCapacity(); j < maxCol; j++)
+			rows[i].addOrEditCell(Cell().getValue(), j);
+	}
+}
 void Table::print()
 {
+	fillTheEmptyCells();
+
 	for (int i = 1; i < maxRow; i++)
 	{
-		for (int j = 1; j < rows[i].getCapacity(); j++)
+		for (int j = 1; j < maxCol; j++)
 		{
 			double res = 0;
 
@@ -386,11 +405,11 @@ void Table::print()
 			{
 				if (!calculateFormulaCellsReference(i, j, res))
 				{
-					cout << "ERROR" << " ";
+					cout << /*"," <<*/ "ERROR" /*<< ","*/ << " ";
 					continue;
 				}
 				calculateFormulaCellsReference(i, j, res);
-				cout << res << " ";
+				cout << /*"," <<*/ res /*<< ","*/ << " ";
 			}
 			else
 				rows[i].printCell(j);
@@ -398,3 +417,19 @@ void Table::print()
 		cout << endl;
 	}
 }
+
+//int Table::findMaxLenOfCellInCol()
+//{
+//	int len = 0;
+//	int maxLen = len;
+//	for (int i = 1; i < maxCol; i ++)
+//	{
+//		for (int row = 1, col = i; row < maxRow; row++)
+//		{
+//			len = strlen(rows[row].getCellStr(col));
+//			if (maxLen < len)
+//				maxLen = len;
+//		}
+//	}
+//	return maxLen;
+//}

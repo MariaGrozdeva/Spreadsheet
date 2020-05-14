@@ -32,10 +32,8 @@ const String Row::getOriginalValue(int index) const
 
 bool Row::isFormula(int index) const
 {
-	if (cells[index].checkValueType(cells[index].getValue()) == 2)
-	{
+	if (cells[index].checkIfStringIsValidNumber(cells[index].getValue()) == 2)
 		return true;
-	}
 	return false;
 }
 
@@ -44,7 +42,7 @@ void Row::addOrEditCell(const String& value, int posOfCell)
 	if (capacity > posOfCell)
 	{
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
-		if (cells[posOfCell].checkValueType(value) == -1)
+		if (cells[posOfCell].checkIfStringIsValidNumber(value) == -1)
 		{
 			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
 			cells[posOfCell].getValue().print();
@@ -70,7 +68,7 @@ void Row::addOrEditCell(const String& value, int posOfCell)
 		capacity = posOfCell + 1;
 
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
-		if (cells[posOfCell].checkValueType(value) == -1)
+		if (cells[posOfCell].checkIfStringIsValidNumber(value) == -1)
 		{
 			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
 			cells[posOfCell].getValue().print();
@@ -89,8 +87,7 @@ void Row::printCell(int index) const
 void Row::print() const
 {
 	for (int i = 1; i < capacity; i++)
-	{
 		printCell(i);
-	}
+
 	cout << endl;
 }

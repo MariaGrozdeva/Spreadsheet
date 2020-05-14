@@ -7,13 +7,6 @@ private:
 	int maxRow;
 	int maxCol;
 
-public:
-	Table();
-
-	void addRow(int numOfRow);
-
-	void edit(const String& value, int row, int col);
-
 	void setLhsValue(const char*& cell, int& start, int& finish, int& lhsRow, int& lhsCol, int& digit, char& Operator);
 	void setRhsValue(const char*& cell, int& finish, int& start, int& rhsRow, int& rhsCol, int& digit, int& len);
 
@@ -25,9 +18,16 @@ public:
 	void settingFinalCellValue(int& row, int& col, double& cell, bool& rowOrColExist);
 
 	double arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell);
-
 	bool calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator);
+
+public:
+	Table();
+
+	void addRow(int numOfRow);
+	void edit(const String& value, int row, int col);
+
 	bool calculateFormulaCellsReference(int row, int col, double& res);
 
+	void fillTheEmptyCells();
 	void print();
 };

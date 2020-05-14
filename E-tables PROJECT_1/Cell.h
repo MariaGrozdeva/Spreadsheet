@@ -8,6 +8,9 @@ private:
 	int row;
 	int col;
 
+	int helperForValidity(const char* str, int len, int i);
+	int helperForDotCount(const char* str, int len);
+
 public:
 	Cell();
 	Cell(const char* str, int row, int col);
@@ -18,8 +21,7 @@ public:
 	const char* getValueStr() const;
 	const String getValue() const;
 
-	int checkValueType(const String& value);
-	bool checkIfStringIsValidNumber(const String& value);
+	int checkIfStringIsValidNumber(const String& value);
 	double convertStrToNum();
 
 	void print() const;
