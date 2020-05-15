@@ -2,7 +2,7 @@
 
 Cell::Cell()
 {
-	value.setStr(",");
+	value.setStr(" ");
 	int row = 0;
 	int col = 0;
 }

@@ -1,1 +1,4 @@
-tova neshto e v test
+10, "Hello world!", 123.56, = R1C1 + R3C3,
+"\"Quoted\""
+1, 2, 3, 4
+

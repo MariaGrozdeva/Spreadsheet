@@ -44,10 +44,10 @@ void Table::edit(const String& value, int row, int col)
 		rows[row].addOrEditCell(value, col);
 
 		maxRow = row + 1;
-		maxCol = rows[row].getCapacity();
 	}
 	else
 		rows[row].addOrEditCell(value, col);
+	maxCol = rows[row].getCapacity();
 }
 
 void Table::setLhsValue(const char*& cell, int& start, int& finish, int& lhsRow, int& lhsCol, int& digit, char& Operator)
@@ -405,31 +405,18 @@ void Table::print()
 			{
 				if (!calculateFormulaCellsReference(i, j, res))
 				{
-					cout << /*"," <<*/ "ERROR" /*<< ","*/ << " ";
+					cout << "ERROR" << ",";
 					continue;
 				}
 				calculateFormulaCellsReference(i, j, res);
-				cout << /*"," <<*/ res /*<< ","*/ << " ";
+				cout << res;
 			}
 			else
 				rows[i].printCell(j);
+
+			if (j != maxCol - 1)
+				cout << ",";
 		}
 		cout << endl;
 	}
 }
-
-//int Table::findMaxLenOfCellInCol()
-//{
-//	int len = 0;
-//	int maxLen = len;
-//	for (int i = 1; i < maxCol; i ++)
-//	{
-//		for (int row = 1, col = i; row < maxRow; row++)
-//		{
-//			len = strlen(rows[row].getCellStr(col));
-//			if (maxLen < len)
-//				maxLen = len;
-//		}
-//	}
-//	return maxLen;
-//}

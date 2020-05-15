@@ -22,6 +22,8 @@ private:
 // потребителя такъв).
 	void helperForReadingFromFile(ofstream& readFile);
 	void helperToCreateNewFile();
+	void helperIsFormulaOrQuote(ifstream& file);
+	void readTableFromFile(ifstream& file);
 
 public:
 	void enterCommand();

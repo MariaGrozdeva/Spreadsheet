@@ -37,6 +37,74 @@ void CommandLine::helperToCreateNewFile()
 	cerr << "Such file doesn't exist. A new empty file with the given name was created for you" << endl;
 	newFile.close();
 }
+void CommandLine::helperIsFormulaOrQuote(ifstream& file)
+{
+	char ch = 'a';
+	file.get(ch);
+	cout << ch;
+}
+void CommandLine::readTableFromFile(ifstream& file)
+{
+	file.open("test.txt");
+
+	char ch = 'a';
+	int currRow = 1;
+	int currCol = 1;
+
+	String emptyValue;
+	Cell emptyCell;
+
+	String tempValue;
+	Cell tempCell;
+	Table tempTable;
+
+	while (true)
+	{
+		file.get(ch);
+		//helperIsFormulaOrQuote(file);
+
+		if (file.eof())
+			break;
+		if (ch == '\n')
+		{
+			tempCell.setValue(tempValue.getStr());
+			tempTable.edit(tempCell.getValue(), currRow, currCol);
+			//cout << "||||||||||" << tempCell.getValueStr() << "||||||||||";
+			//cout << " COLLL " << currCol;
+			//cout << " ROWWW " << currRow << endl;
+
+			file.get(ch);
+
+			currRow++;
+			currCol = 1;
+
+			tempValue = emptyValue;
+			tempCell = emptyCell;
+		}
+
+		if (ch == ' ')
+			continue;
+
+		else if (ch != ',')
+			tempValue.push_back(ch);
+		else if (ch == ',')
+		{
+			tempCell.setValue(tempValue.getStr());
+			tempTable.edit(tempCell.getValue(), currRow, currCol);
+		/*	cout << "||||||||||" << tempCell.getValueStr() << "||||||||||";
+			cout << " COLLL " << currCol;
+			cout << " ROWWW " << currRow << endl;*/
+
+			currCol++;
+
+			tempValue = emptyValue;
+			tempCell = emptyCell;
+		}
+	}
+	cout << endl;
+	table = tempTable;
+	table.print();
+}
 
 void CommandLine::save(String& originalFileName)
 {
@@ -129,6 +197,8 @@ void CommandLine::open()
 
 			originalFile.close();
 			copyFile.close();
+
+			readTableFromFile(originalFile);
 
 			while (true)
 			{
