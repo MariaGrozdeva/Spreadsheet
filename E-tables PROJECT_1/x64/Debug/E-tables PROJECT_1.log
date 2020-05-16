@@ -1,7 +1,7 @@
 ﻿  Table.cpp
 C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(229,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(316,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(439,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(485,44): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(440,44): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(504,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Maria\Desktop\e-table\E-tables PROJECT_1\Table.cpp(220): warning C4715: 'Table::arithmeticOperations': not all control paths return a value
   E-tables PROJECT_1.vcxproj -> C:\Users\Maria\Desktop\e-table\x64\Debug\E-tables PROJECT_1.exe

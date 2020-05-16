@@ -508,7 +508,7 @@ void Table::print()
 				cout << ' ';
 			}
 			if (j != maxCol - 1)
-				cout << ' | ';
+				cout << " | ";
 		}
 		cout << endl;
 	}
