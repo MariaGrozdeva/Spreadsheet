@@ -98,7 +98,7 @@ void Table::setRhsValue(const char*& cell, int& finish, int& start, int& rhsRow,
 	}
 }
 
-void Table::checkIfRhsValueIsFormula(const char*& cell, int& lastDigPosBefOp, int& len, bool& isRhsFormula)
+void Table::checkIfRhsValueIsReference(const char*& cell, int& lastDigPosBefOp, int& len, bool& isRhsFormula)
 {
 	for (int i = 0; i < len; i++)
 	{
@@ -220,7 +220,6 @@ double Table::arithmeticOperations(char& Operator, double& lhsCell, double& rhsC
 }
 
 bool Table::calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator)
-// assume that the given formula is valid
 {
 	int digit = 0;
 	lhsNum = 0;
@@ -311,7 +310,7 @@ bool Table::calculateStandartFormula(int row, int col, double& lhsNum, double& r
 	}
 	return isValid ? true : false;
 }
-bool Table::calculateFormulaCellsReference(int row, int col, double& res) // assume that the given formula is valid
+bool Table::calculateFormulaCellsReference(int row, int col, double& res)
 {
 	int len = strlen(rows[row].getCellStr(col));
 	const char* cell = rows[row].getCellStr(col);
@@ -334,47 +333,47 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 
 	char Operator;
 
-	if (cell[2] >= '0' && cell[2] <= '9') // check if FIRST IS NUMBER
+	if (cell[2] >= '0' && cell[2] <= '9') // check if first is number
 	{
-		checkIfRhsValueIsFormula(cell, lastDigPosBefOp, len, isRhsFormula); // check if SECOND IS FORMULA
+		checkIfRhsValueIsReference(cell, lastDigPosBefOp, len, isRhsFormula); // check if second is reference
 		if (isRhsFormula) 
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
-			if (!setLhsValueAsNum(cell, lhsCell, digit, Operator)) // set FIRST AS NUMBER
+			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set second as reference
+			if (!setLhsValueAsNum(cell, lhsCell, digit, Operator)) // set first as number
 				return false;
 		}
 
-		else if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if BOTH ARE NUMBERS
+		else if ((cell[2] >= '0' && cell[2] <= '9') && (!isRhsFormula)) // check if both are numbers
 		{
-			if (!calculateStandartFormula(row, col, lhsCell, rhsCell, Operator)) // set BOTH AS NUMBERS
+			if (!calculateStandartFormula(row, col, lhsCell, rhsCell, Operator)) // set both as numbers
 				return false;
 		}		
 	}
 
-	else if (cell[2] == 'R') // FIRST IS FORMULA
+	else if (cell[2] == 'R') // first is reference
 	{
 		lastDigPosBefCol += 3;
 		lastDigPosBefOp += 5;
 
 		setLhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, lhsRow, lhsCol, digit, Operator);
-		settingFinalCellValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set FIRST AS FORMULA
+		settingFinalCellValue(lhsRow, lhsCol, lhsCell, rowOrColExist); // set first as reference
 		if (rowOrColExist)
 		{
 			if (rows[lhsRow].getCells()->checkIfStringIsValidNumber(rows[lhsRow].getCells()[lhsCol].getValue()) == -1)
 				lhsCell = 0;
 		}
 
-		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if SECOND IS NUMBER
+		if (cell[lastDigPosBefOp + 4] >= '0' && cell[lastDigPosBefOp + 4] <= '9') // check if second is number
 		{		
-			if (!setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum)) // set SECOND AS NUMBER
+			if (!setRhsValueAsNum(cell, lastDigPosBefOp, rhsCell, digit, len, isRhsNum)) // set second as number
 				return false;
 		}
 
-		if (!isRhsNum) // SECOND IS FORMULA
+		if (!isRhsNum) // second is reference
 		{
 			setRhsValue(cell, lastDigPosBefCol, lastDigPosBefOp, rhsRow, rhsCol, digit, len);
-			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set SECOND AS FORMULA
+			settingFinalCellValue(rhsRow, rhsCol, rhsCell, rowOrColExist); // set second as reference
 			if (rowOrColExist)
 			{
 				if (rows[rhsRow].getCells()->checkIfStringIsValidNumber(rows[rhsRow].getCells()[rhsCol].getValue()) == -1)
@@ -382,7 +381,7 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 			}
 		}		
 	}
-	else // INVALID NUMBER
+	else // invalid number
 		return false;
 
 	res = arithmeticOperations(Operator, lhsCell, rhsCell);
@@ -468,6 +467,7 @@ void Table::fillTheEmptyCells()
 void Table::print()
 {
 	int len = 0;
+
 	fillTheEmptyCells();
 	findMaxLenOfCellInCols();
 

@@ -29,25 +29,23 @@ void CommandLine::helperForSaveAndSaveas(String& fileName)
 
 	for (int i = 1; i < countOfRows; i++)
 	{
-		int countOfCols = table.getRows()->getCapacity();
-		for (int j = 1; j < countOfCols; j++)
+		if (!table.getRows()[i].getIsEmpty())
 		{
-			int len = strlen(table.getCellOnRow(i, j));
-			file.write(table.getCellOnRow(i, j), len);
-			file.write(",", sizeof(char));
+			int countOfCols = table.getRows()[i].getCapacity();
+
+			for (int j = 1; j < countOfCols; j++)
+			{
+				int len = strlen(table.getCellOnRow(i, j));
+				file.write(table.getCellOnRow(i, j), len);
+
+				if (j != countOfCols - 1)
+					file.write(",", sizeof(char));
+			}
 		}
 		file.write("\n", sizeof(char));
 	}
 
 	file.close();
-}
-void CommandLine::helperForReadingFromFile(ofstream& readFile)
-{
-	String buff;
-
-	buff.push_back(letter);
-
-	readFile << buff.getStr();
 }
 void CommandLine::helperToCreateNewFile()
 {
@@ -140,6 +138,7 @@ void CommandLine::edit()
 	}
 
 	cell.setValue(value.getStr());
+
 	if (cell.checkIfStringIsValidNumber(tempValue) == -1)
 	{
 		cout << "Error: row:" << row << ", col:" << col << ", ";
@@ -190,6 +189,9 @@ void CommandLine::help() const
 
 void CommandLine::open()
 {
+	cout << "Write exit to stop the program." << endl;
+
+	String emptyFileName;
 	ifstream file;
 
 	while (strcmp(command, "exit") != 0)
@@ -218,16 +220,21 @@ void CommandLine::open()
 			while (true)
 			{
 				enterCommand();
+				if (strcmp(command, "open") == 0)
+					cout << "You have to close the file before opening another one." << endl;
 
-				if (strcmp(command, "save") == 0)
+				else if (strcmp(command, "save") == 0)
 					save(fileName);
-
+				
 				else if (strcmp(command, "saveas") == 0)
 					saveas();
 
 				else if (strcmp(command, "close") == 0)
 				{
 					close();
+					file.close();
+
+					fileName = emptyFileName;
 					break;
 				}
 

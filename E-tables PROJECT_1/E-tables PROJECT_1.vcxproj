@@ -161,6 +161,10 @@
     <ClInclude Include="String.h" />
     <ClInclude Include="Table.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="MainPage.md" />
+    <None Include="SubPagee.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

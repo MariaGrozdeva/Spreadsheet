@@ -7,7 +7,7 @@ const int MAX_SIZE_OF_COMMAND = 8;
 class CommandLine
 {
 private:
-	String fileName;
+	String fileName; /**< Undetermined length of the name of a file. */
 	String value;
 	Cell cell;
 	Table table;
@@ -15,15 +15,19 @@ private:
 	char command[MAX_SIZE_OF_COMMAND];
 	char letter;
 
-	void setName(String& sampleName);
+	void setName(String& sampleName);  /**< Helper to set the name of a file. */
 
-	void helperForSaveAndSaveas(String& diffFileName); // &, за да не създаваме копие на името.
-// Тази функция е декларирана в private секцията, защото ще я ползваме само ние, не искаме потребителят да има
-// достъп до нея. В зависимост от това дали ще я викаме в save или saveas- методите, ще и подаваме съответно
-// fileName(записваме промените в оригиналния файл) или userChosenFileName(записваме ги в избран от
-// потребителя такъв).
-	void helperForReadingFromFile(ofstream& readFile);
-	void helperToCreateNewFile();
+	/** 
+	* The functions mentioned below are helpers for the realisation of the main command open().
+	* Consequently, they are private member functions.
+	* @see helperToCreateNewFile() @see readTableFromFile()
+	*/
+	void helperForSaveAndSaveas(String& diffFileName); 
+	void helperToCreateNewFile(); /**< If the pointed out file doesn't exist, this function creates new, empty one. */
+	/**
+	* Extracts the content of a file and creates a "virtual table". The user works on it and depending on
+	* whether he wants to save the changes or not, he uses the commands save() / saveas() or close() respectively.
+	*/
 	void readTableFromFile(ifstream& file);
 
 public:
