@@ -7,21 +7,39 @@ void CommandLine::enterCommand()
 	cin.ignore();
 }
 
+void CommandLine::setName(String& sampleName)
+{
+	while (true)
+	{
+		cin.get(letter);
+
+		if (letter == ' ' || letter == '\n')
+			break;
+
+		sampleName.push_back(letter);
+	}
+}
+
 void CommandLine::helperForSaveAndSaveas(String& fileName)
 {
-	ofstream originalFile; // ofstream, ще записваме промените в оригиналния файл
-	ifstream copyFile; // ifstream, ще ги четем от файла- копие на оригиналния
+	ofstream file;
+	file.open(fileName.getStr());
 
-	originalFile.open(fileName.getStr());
-	copyFile.open("temp.txt");
+	int countOfRows = table.getMaxRow();
 
-	while (copyFile.get(letter))
+	for (int i = 1; i < countOfRows; i++)
 	{
-		helperForReadingFromFile(originalFile);
+		int countOfCols = table.getRows()->getCapacity();
+		for (int j = 1; j < countOfCols; j++)
+		{
+			int len = strlen(table.getCellOnRow(i, j));
+			file.write(table.getCellOnRow(i, j), len);
+			file.write(",", sizeof(char));
+		}
+		file.write("\n", sizeof(char));
 	}
 
-	originalFile.close();
-	copyFile.close();
+	file.close();
 }
 void CommandLine::helperForReadingFromFile(ofstream& readFile)
 {
@@ -37,15 +55,9 @@ void CommandLine::helperToCreateNewFile()
 	cerr << "Such file doesn't exist. A new empty file with the given name was created for you" << endl;
 	newFile.close();
 }
-void CommandLine::helperIsFormulaOrQuote(ifstream& file)
-{
-	char ch = 'a';
-	file.get(ch);
-	cout << ch;
-}
 void CommandLine::readTableFromFile(ifstream& file)
 {
-	file.open("test.txt");
+	file.open(fileName.getStr());
 
 	char ch = 'a';
 	int currRow = 1;
@@ -58,42 +70,42 @@ void CommandLine::readTableFromFile(ifstream& file)
 	Cell tempCell;
 	Table tempTable;
 
+	bool isRowEmpty = true;
+
 	while (true)
 	{
 		file.get(ch);
-		//helperIsFormulaOrQuote(file);
 
 		if (file.eof())
 			break;
 		if (ch == '\n')
 		{
-			tempCell.setValue(tempValue.getStr());
-			tempTable.edit(tempCell.getValue(), currRow, currCol);
-			//cout << "||||||||||" << tempCell.getValueStr() << "||||||||||";
-			//cout << " COLLL " << currCol;
-			//cout << " ROWWW " << currRow << endl;
-
-			file.get(ch);
+			if (!isRowEmpty)
+			{
+				tempCell.setValue(tempValue.getStr());
+				tempCell.removeSpaces();
+				tempTable.edit(tempCell.getValue(), currRow, currCol);
+			}
 
 			currRow++;
 			currCol = 1;
 
 			tempValue = emptyValue;
 			tempCell = emptyCell;
+
+			isRowEmpty = true;
 		}
 
-		if (ch == ' ')
-			continue;
-
 		else if (ch != ',')
+		{
 			tempValue.push_back(ch);
+			isRowEmpty = false;
+		}
 		else if (ch == ',')
 		{
 			tempCell.setValue(tempValue.getStr());
+			tempCell.removeSpaces();
 			tempTable.edit(tempCell.getValue(), currRow, currCol);
-		/*	cout << "||||||||||" << tempCell.getValueStr() << "||||||||||";
-			cout << " COLLL " << currCol;
-			cout << " ROWWW " << currRow << endl;*/
 
 			currCol++;
 
@@ -101,14 +113,45 @@ void CommandLine::readTableFromFile(ifstream& file)
 			tempCell = emptyCell;
 		}
 	}
-	cout << endl;
 	table = tempTable;
-	table.print();
 }
 
-void CommandLine::save(String& originalFileName)
+void CommandLine::edit()
 {
-	helperForSaveAndSaveas(originalFileName);
+	String tempValue;
+
+	int row;
+	cin >> row;
+	cin.ignore();
+
+	int col;
+	cin >> col;
+	cin.ignore();
+
+	while (true)
+	{
+		cin.get(letter);
+
+		if (letter == '\n')
+			break;
+
+		tempValue.push_back(letter);
+		value.setStr(tempValue.getStr());
+	}
+
+	cell.setValue(value.getStr());
+	if (cell.checkIfStringIsValidNumber(tempValue) == -1)
+	{
+		cout << "Error: row:" << row << ", col:" << col << ", ";
+		value.print();
+		cout << " is unknown data type." << endl;
+	}
+	table.edit(cell.getValue(), row, col);
+}
+
+void CommandLine::save(String& fileName)
+{
+	helperForSaveAndSaveas(fileName);
 
 	cout << "Successfully saved " << fileName.getStr() << endl;
 }
@@ -117,15 +160,7 @@ void CommandLine::saveas()
 {
 	String userChosenFileName; // Създаваме името на файла, в което потребителят иска да запише промените.
 
-	while (true)
-	{
-		cin.get(letter);
-
-		if (letter == ' ' || letter == '\n')
-			break;
-
-		userChosenFileName.push_back(letter);
-	}
+	setName(userChosenFileName);
 
 	helperForSaveAndSaveas(userChosenFileName);
 
@@ -155,9 +190,7 @@ void CommandLine::help() const
 
 void CommandLine::open()
 {
-	ifstream originalFile; // Четем от оригиналния файл.
-	ofstream copyFile; // Записваме промените в копие, за да не променяме съдържанието на оригиналния
-	// докато потребителят не използва командата, предназначена за тази промяна(saveas).
+	ifstream file;
 
 	while (strcmp(command, "exit") != 0)
 	{
@@ -165,54 +198,32 @@ void CommandLine::open()
 
 		if (strcmp(command, "open") == 0)
 		{
-			String tempFileName;
+			setName(fileName);
 
-			while (true)
-			{
-				cin.get(letter);
+			file.open(fileName.getStr());
 
-				if (letter == ' ' || letter == '\n')
-					break;
-
-				tempFileName.push_back(letter);
-				fileName.setStr(tempFileName.getStr());
-			}
-
-			originalFile.open(fileName.getStr());
-			copyFile.open("temp.txt");
-
-			if (originalFile.fail())
+			if (file.fail())
 			{
 				helperToCreateNewFile();
 
-				originalFile.open(fileName.getStr());
+				file.open(fileName.getStr());
 			}
 			else
-				cout << "Successfully opened" << " " << fileName.getStr();
+				cout << "Successfully opened " << fileName.getStr() << endl;
 
-			while (originalFile.get(letter)) // Записваме оригиналния файл във файла- копие.
-			{
-				helperForReadingFromFile(copyFile);
-			}
+			file.close();
 
-			originalFile.close();
-			copyFile.close();
-
-			readTableFromFile(originalFile);
+			readTableFromFile(file);
 
 			while (true)
 			{
 				enterCommand();
 
 				if (strcmp(command, "save") == 0)
-				{
 					save(fileName);
-				}
 
 				else if (strcmp(command, "saveas") == 0)
-				{
 					saveas();
-				}
 
 				else if (strcmp(command, "close") == 0)
 				{
@@ -227,41 +238,13 @@ void CommandLine::open()
 				}
 
 				else if (strcmp(command, "help") == 0)
-				{
 					help();
-				}
 
 				else if (strcmp(command, "edit") == 0)
-				{
-					String tempValue;
-
-					int row;
-					cin >> row;
-					cin.ignore();
-
-					int col;
-					cin >> col;
-					cin.ignore();
-
-					while (true)
-					{
-						cin.get(letter);
-
-						if (letter == '\n')
-							break;
-
-						tempValue.push_back(letter);
-						value.setStr(tempValue.getStr());
-					}
-
-					cell.setValue(value.getStr());
-					table.edit(cell.getValue(), row, col);
-				}
+					edit();
 
 				else if (strcmp(command, "print") == 0)
-				{
 					table.print();
-				}
 			}
 		}
 	}

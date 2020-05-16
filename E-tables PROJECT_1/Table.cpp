@@ -7,11 +7,24 @@ Table::Table()
 	rows = new Row(maxRow);
 }
 
+int Table::getMaxRow() const
+{
+	return maxRow;
+}
+const char* Table::getCellOnRow(int row, int col) const
+{
+	return rows[row].getCellStr(col);
+}
+Row* Table::getRows() const
+{
+	return rows;
+}
+
 void Table::addRow(int numOfRow)
 {
 	if (maxRow <= numOfRow)
 	{
-		Row* helper = new Row[numOfRow + 1]; // Редът с индекс 5, ще е 6ти.
+		Row* helper = new Row[numOfRow + 1];
 
 		for (int i = 0; i < maxRow; i++)
 		{
@@ -27,13 +40,7 @@ void Table::addRow(int numOfRow)
 		rows[numOfRow] = *new Row(numOfRow);
 	}
 
-	for (int i = 0; i < maxRow; i++)
-	{
-		for (int j = rows[i].getCapacity(); j < maxCol; j++)
-		{
-			rows[i].addOrEditCell(Cell().getValue(), j);
-		}
-	}
+	fillTheEmptyCells();
 }
 
 void Table::edit(const String& value, int row, int col)
@@ -47,7 +54,9 @@ void Table::edit(const String& value, int row, int col)
 	}
 	else
 		rows[row].addOrEditCell(value, col);
-	maxCol = rows[row].getCapacity();
+
+	if (maxCol < rows[row].getCapacity())
+		maxCol = rows[row].getCapacity();
 }
 
 void Table::setLhsValue(const char*& cell, int& start, int& finish, int& lhsRow, int& lhsCol, int& digit, char& Operator)
@@ -383,17 +392,84 @@ bool Table::calculateFormulaCellsReference(int row, int col, double& res) // ass
 	return true;
 }
 
+int Table::lenOfNum(int num)
+{
+	int numOfDigits = 0;
+	while (num)
+	{
+		++numOfDigits;
+		num /= 10;
+	}
+	return numOfDigits;
+}
+int Table::findMaxLenOfCellInCols()
+{
+	int len = 0;
+	int maxLen = 0;
+	double res = 0;
+	lenOfMaxCols = new int[maxCol];
+
+	for (int col = 1; col < maxCol; col++)
+	{
+		len = 0;
+		maxLen = 0;
+		for (int row = 1; row < maxRow; row++)
+		{
+			if (rows[row].getIsEmpty())
+				len = 0;
+
+			else if (rows[row].isFormula(col))
+			{
+				if (!calculateFormulaCellsReference(row, col, res))
+				{
+					len = 5;
+					continue;
+				}
+				calculateFormulaCellsReference(row, col, res);
+				if (!((int)res == res))
+				{
+					res = round(res * 100 + 0.5) / 100;
+					len = lenOfNum((int)res) + 2;
+				}
+				else
+					len = lenOfNum((int)res);
+			}
+
+			else
+			{
+				len = strlen(rows[row].getCellStr(col));
+				if (rows[row].getCellStr(col)[0] == '"' && rows[row].getCellStr(col)[len - 1] == '"')
+				{
+					if (rows[row].getCellStr(col)[2] == '"' && rows[row].getCellStr(col)[len - 2] == '"' &&
+						rows[row].getCellStr(col)[1] == '\\' && rows[row].getCellStr(col)[len - 3] == '\\')
+						len = len - 4;
+					else
+						len = len - 2;
+				}
+			}
+			if (maxLen < len)
+				maxLen = len;
+		}
+		lenOfMaxCols[col] = maxLen;
+	}
+	return maxLen;
+}
 void Table::fillTheEmptyCells()
 {
 	for (int i = 0; i < maxRow; i++)
 	{
+		if (rows[i].getIsEmpty())
+			continue;
 		for (int j = rows[i].getCapacity(); j < maxCol; j++)
 			rows[i].addOrEditCell(Cell().getValue(), j);
 	}
 }
+
 void Table::print()
 {
+	int len = 0;
 	fillTheEmptyCells();
+	findMaxLenOfCellInCols();
 
 	for (int i = 1; i < maxRow; i++)
 	{
@@ -401,21 +477,38 @@ void Table::print()
 		{
 			double res = 0;
 
+			if (rows[i].getIsEmpty())
+				break;
+
 			if (rows[i].isFormula(j))
 			{
 				if (!calculateFormulaCellsReference(i, j, res))
 				{
-					cout << "ERROR" << ",";
+					cout << "ERROR | ";
+					len = 5;
 					continue;
 				}
 				calculateFormulaCellsReference(i, j, res);
+				if (!((int)res == res))
+				{
+					res = round(res * 100 + 0.5) / 100;
+					len = lenOfNum((int)res) + 2;
+				}
+				else
+					len = lenOfNum((int)res);
 				cout << res;
 			}
 			else
+			{
 				rows[i].printCell(j);
-
+				len = strlen(rows[i].getCellStr(j));
+			}
+			for (int k = 0; k < lenOfMaxCols[j] - len; k++)
+			{
+				cout << ' ';
+			}
 			if (j != maxCol - 1)
-				cout << ",";
+				cout << ' | ';
 		}
 		cout << endl;
 	}

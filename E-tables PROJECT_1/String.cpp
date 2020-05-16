@@ -4,7 +4,7 @@
 String::String()
 {
 	capacity = 4;
-	str = new char[capacity] {'0'};
+	str = new char[capacity] {' '};
 	currentEl = 0;
 }
 

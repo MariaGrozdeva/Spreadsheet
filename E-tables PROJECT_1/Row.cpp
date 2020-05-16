@@ -5,6 +5,7 @@ Row::Row(int id)
 	capacity = 4;
 	cells = new Cell[capacity];
 	this->id = id;
+	isEmpty = true;
 }
 
 Cell* Row::getCells() const
@@ -12,11 +13,14 @@ Cell* Row::getCells() const
 	return cells;
 }
 
+bool Row::getIsEmpty() const
+{
+	return isEmpty;
+}
 const int Row::getCapacity() const
 {
 	return capacity;
 }
-
 const char* Row::getCellStr(int index) const
 {
 	return cells[index].getValueStr();
@@ -42,14 +46,9 @@ void Row::addOrEditCell(const String& value, int posOfCell)
 	if (capacity > posOfCell)
 	{
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		isEmpty = false;
 		if (cells[posOfCell].checkIfStringIsValidNumber(value) == -1)
-		{
-			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
-			cells[posOfCell].getValue().print();
-			cout << " is unknown data type." << endl;
-
 			return;
-		}
 	}
 
 	else
@@ -68,21 +67,15 @@ void Row::addOrEditCell(const String& value, int posOfCell)
 		capacity = posOfCell + 1;
 
 		cells[posOfCell] = *new Cell(value.getStr(), id, posOfCell);
+		isEmpty = false;
 		if (cells[posOfCell].checkIfStringIsValidNumber(value) == -1)
-		{
-			cout << "Error: row:" << id << ", col:" << posOfCell << ", ";
-			cells[posOfCell].getValue().print();
-			cout << " is unknown data type." << endl;
-
 			return;
-		}
 	}
 }
 
 void Row::printCell(int index) const
 {
 	cells[index].print();
-	cout << " ";
 }
 void Row::print() const
 {

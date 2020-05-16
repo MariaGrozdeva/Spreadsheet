@@ -4,6 +4,7 @@ class Table
 {
 private:
 	Row* rows;
+	int* lenOfMaxCols;
 	int maxRow;
 	int maxCol;
 
@@ -20,14 +21,21 @@ private:
 	double arithmeticOperations(char& Operator, double& lhsCell, double& rhsCell);
 	bool calculateStandartFormula(int row, int col, double& lhsNum, double& rhsNum, char& Operator);
 
+	int lenOfNum(int num);
+	int findMaxLenOfCellInCols();
+	void fillTheEmptyCells();
+	
 public:
 	Table();
+
+	int getMaxRow() const;
+	const char* getCellOnRow(int row, int col) const;
+	Row* getRows() const;
 
 	void addRow(int numOfRow);
 	void edit(const String& value, int row, int col);
 
 	bool calculateFormulaCellsReference(int row, int col, double& res);
 
-	void fillTheEmptyCells();
 	void print();
 };
