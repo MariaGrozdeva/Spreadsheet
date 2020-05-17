@@ -111,6 +111,8 @@ int Cell::checkIfStringIsValidNumber(const String& value)
 
 	if (str[0] == '=')
 		return 2;
+	if (str[0] == ' ')
+		return -1;
 
 	if ((str[0] == '"') && (str[len - 1] == '"'))
 	{
